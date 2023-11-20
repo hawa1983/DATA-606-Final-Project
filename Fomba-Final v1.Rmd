@@ -1,0 +1,174 @@
+---
+title: "Your Presentation Title"
+author: "Fomba Kassoh & Souleymane Doumbia"
+date: "2023-11-19"
+output:
+  html_document:
+    toc: true
+    df_print: paged
+  pdf_document:
+    toc: true
+  ioslides_presentation:
+    widescreen: true
+  slidy_presentation:
+    incremental: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+
+data <- read_csv('https://data.cityofnewyork.us/resource/rc75-m7u3.csv')
+
+
+
+```
+
+
+```{r}
+glimpse(data)
+```
+
+
+
+```{r
+
+}
+library(ggplot2)
+
+ggplot(data, aes(x = rating)) +
+  geom_histogram()
+```
+
+
+```{r}
+library(ggplot2)
+
+ggplot(data, aes(x = hospitalized_count, y = death_count)) +
+  geom_point()
+```
+
+# Abstract
+In the amazon review dataset, we have columns such as discounted_price, actual_price, and discount_percentage. We are interested in predicting ratings and rating_count. In this analysis, we will use discounted_price, actual_price, and discount_percentage as predictors of ratings or rating count. 
+
+# Overview
+For creating slides, you might use R Markdown with an output format that supports slides, like 'ioslides' or 'slidy'.
+
+## Context of Data Collection
+You'll need to document the data collection context outside of R, as it involves describing the methodology rather than performing analysis.
+
+## Independent Variables Description
+### Discounted Price
+This is the price at which the product is sold after applying the discount. This could influence the customer's perception of value for money, which in turn could affect the product rating or how many people decide to rate the product.
+
+### Actual Price
+This is the original price of the product without any discounts. It may reflect the perceived quality or premium status of the product. Products with higher actual prices might be perceived as higher quality, potentially affecting the ratings.
+
+### Discount Percentage
+This is the percentage reduction from the actual price to the discounted price. A higher discount percentage might attract more buyers, potentially leading to a higher number of ratings. Also, if customers feel they are getting a good deal, it might positively impact the product ratings.
+
+When using these as predictors in a statistical model for ratings (which might be a continuous variable reflecting the average rating score) or rating_count (which might be a count variable reflecting the number of ratings), you would hypothesize that changes in price and discount variables can predict changes in these outcomes.
+
+For example, a simple linear regression model with ratings as the dependent variable and discounted_price, actual_price, and discount_percentage as independent variables could be conceptualized as follows:
+
+## Dependent Variables Description
+### Ratings as a Dependent Variable
+Ratings: This would typically be a numerical value that represents the average score given by customers to a product. It is a continuous variable that can range from the lowest possible score (e.g., 1) to the highest (e.g., 5 or 10, depending on the scale used). The ratings reflect customer satisfaction and perception of the product's quality and value.
+When using ratings as the dependent variable in a regression analysis, the goal is to understand how changes in the independent variables (discounted_price, actual_price, discount_percentage) are associated with changes in the average rating score. For instance, one might hypothesize that a larger discount leads to higher ratings due to perceived value, or that higher actual prices correlate with higher quality and therefore higher ratings.
+
+### Rating Count as a Dependent Variable
+Rating Count: This is the count of how many customers have left a rating for a product. It is a discrete, count-based variable. The rating count can give insights into the product's popularity or the confidence customers feel in leaving feedback.
+
+In a statistical model with rating count as the dependent variable, you would be examining the influence of pricing strategies (reflected by discounted_price, actual_price, discount_percentage) on the volume of customer feedback. For example, it might be expected that products with a higher discount percentage receive more ratings because they attract more customers due to the perceived deal.
+
+```{r}
+# Determine the dependent variable (e.g., rating)
+dependent_var <- 'rating'
+
+# Choose independent variables (e.g., discounted_price, actual_price)
+independent_vars <- c('discounted_price', 'actual_price')
+
+# You can use the names() function to display all the column names from your dataframe for reference.
+# names(data)
+
+```
+
+# Research Question
+Your research question could be defined in a comment or text cell in R Markdown.For example: "Is there a correlation between the discounted price and the product rating?"
+
+# Summary Statistics
+
+```{r}
+# Using dplyr to calculate summary statistics for the rating
+library(dplyr)
+summary_stats <- data %>%
+  summarise(Mean_Rating = mean(rating, na.rm = TRUE),
+            SD_Rating = sd(rating, na.rm = TRUE),
+            Median_Rating = median(rating, na.rm = TRUE),
+            IQR_Rating = IQR(rating, na.rm = TRUE))
+print(summary_stats)
+
+```
+
+# Data Visualizations
+```{r}
+# Use ggplot2 for visualization, such as a histogram of ratings
+library(ggplot2)
+ggplot(data, aes(x = rating)) + 
+  geom_histogram(binwidth = 0.5, fill = "blue", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogram of Product Ratings", x = "Rating", y = "Frequency")
+
+```
+
+# Statistical Output
+
+## Mean, and Median Rating and rating count
+
+```{r}
+# T-test example if comparing ratings between two categories of products
+t_test_result <- t.test(rating ~ category, data = data)
+print(t_test_result)
+
+# ANOVA example if comparing more than two categories
+anova_result <- aov(rating ~ category, data = data)
+summary(anova_result)
+```
+
+## Regression
+### Simple Linear Regression with Ratings
+If the ratings are normally distributed, a linear regression could be appropriate.
+```{r linear regression}
+# Convert currency symbols to numeric values assuming 'discounted_price' and 'actual_price' are character columns
+data$discounted_price <- as.numeric(gsub("â‚¹", "", data$discounted_price))
+data$actual_price <- as.numeric(gsub("â‚¹", "", data$actual_price))
+
+```
+
+### Multiple Linear Regression with Ratings
+```{r}
+# Simple linear regression example with 'rating' as the dependent variable
+lm_result <- lm(rating ~ discounted_price + actual_price, data = data)
+summary(lm_result)
+
+# Model with ratings as the dependent variable and discounted_price, actual_price, and discount_percentage 
+model <- lm(ratings ~ discounted_price + actual_price + discount_percentage, data = your_data_frame)
+```
+
+### Poisson or Negative Binomial Regression with Rating Count
+Since rating count is a count variable, you'd likely use a Poisson or negative binomial regression, which are suitable for modelling count data.
+
+```{r poison regression}
+glm_rating_count <- glm(rating_count ~ discounted_price + actual_price + discount_percentage, 
+                        data = dataset, 
+                        family = 'poisson')
+
+```
+
+# Conclusion, Importance, Limitations
+These sections would be descriptive and typically written in R Markdown or another text document.
